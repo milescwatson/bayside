@@ -1,0 +1,22 @@
+{
+  "name": "bayside",
+  "version": "1.0.0",
+  "description": "Business Logic for Bayside HVAC LLC",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/milescwatson/bayside.git"
+  },
+  "author": "Miles Watson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/milescwatson/bayside/issues"
+  },
+  "homepage": "https://github.com/milescwatson/bayside#readme",
+  "dependencies": {
+    "node-html-parser": "^6.1.0"
+  }
+}
