@@ -214,11 +214,11 @@ class MSA {
 			
 				// send mail with defined transport object
 				let info = await transporter.sendMail({
-				from: '"Miles Watson" <miles@milescwatson.com>', // sender address
-				to: "mc.watson415@gmail.com, miles@milescwatson.com", // list of receivers
+				from: '"Miles Watson" <miles@cloud.milescwatson.com>', // sender address
+				to: "gggg@yopmail.com", // list of receivers
 				subject: "Hello ✔", // Subject line
 				text: "Hello world?", // plain text body
-				html: "<b>Hello world?</b>", // html body
+				html: "<b>Hello world? Helllo darkness my old friend</b>", // html body
 				});
 			
 				console.log("Message sent: %s", info.messageId);

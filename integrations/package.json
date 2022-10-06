@@ -1,9 +1,0 @@
-{
-  "dependencies": {
-    "follow-redirects": "^1.15.2",
-    "html-table-to-json": "^1.0.0",
-    "jsdom": "^20.0.0",
-    "mysql2": "^2.3.3",
-    "nodemailer": "^6.8.0"
-  }
-}

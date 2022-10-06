@@ -17,6 +17,12 @@
   },
   "homepage": "https://github.com/milescwatson/bayside#readme",
   "dependencies": {
-    "node-html-parser": "^6.1.0"
+    "aws-sdk": "^2.1230.0",
+    "follow-redirects": "^1.15.2",
+    "html-table-to-json": "^1.0.0",
+    "jsdom": "^20.0.0",
+    "mysql2": "^2.3.3",
+    "node-html-parser": "^6.1.0",
+    "nodemailer": "^6.8.0"
   }
 }
