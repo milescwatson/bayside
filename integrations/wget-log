@@ -1,0 +1,16 @@
+--2022-10-16 00:28:20--  https://aka.ms/install-vscode-server/setup.sh
+Resolving aka.ms (aka.ms)... 2.19.147.45
+Connecting to aka.ms (aka.ms)|2.19.147.45|:443... connected.
+HTTP request sent, awaiting response... 301 Moved Permanently
+Location: https://vscodeserverlauncher.blob.core.windows.net/builds/setup-scripts/setup.sh [following]
+--2022-10-16 00:28:20--  https://vscodeserverlauncher.blob.core.windows.net/builds/setup-scripts/setup.sh
+Resolving vscodeserverlauncher.blob.core.windows.net (vscodeserverlauncher.blob.core.windows.net)... 20.150.78.68
+Connecting to vscodeserverlauncher.blob.core.windows.net (vscodeserverlauncher.blob.core.windows.net)|20.150.78.68|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 1758 (1.7K) [text/x-sh]
+Saving to: ‘STDOUT’
+
+-                                      0%[                                                                    ]       0  --.-KB/s               -                                    100%[===================================================================>]   1.72K  --.-KB/s    in 0s      
+
+2022-10-16 00:28:20 (382 MB/s) - written to stdout [1758/1758]
+

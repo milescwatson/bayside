@@ -1,9 +1,11 @@
 var fs = require('fs'),
+	fetch = require('node-fetch'),
 	https = require('follow-redirects').https,
 	jsdom = require("jsdom"),
 	HtmlTableToJson = require('html-table-to-json'),
 	nodemailer = require('nodemailer'),
-	DATA_PATH = './data.json'
+	email = require('./sendEmail.js'),
+	DATA_PATH = './data.json',
 	DEBUG_PATH = './examples/orders.html',
 	DEBUG = false;
 
@@ -13,9 +15,6 @@ class MSA {
 	constructor(username, password){
 		this.username = username;
 		this.password = password;
-		this.cookies = null;
-		// this.getSession()
-		// this.getOrdersPage()
 	}
 
 	async getRequestConfirmationToken(){
@@ -73,6 +72,7 @@ class MSA {
 		  });
 		var data = await response.headers;
 		var text = await response.text();
+		console.log('session text= ', text)
 		var setCookies = data.get('set-cookie');
 		
 		// var cookies =  setCookies.split(';').reduce((prev, current) => {
@@ -86,12 +86,17 @@ class MSA {
 		// 	'SECSESSIONID': cookies['Secure, SECSESSIONID'],
 		// 	'lagrangeSession': cookies['Secure, lagrange_session']
 		// }
-		this.cookies = setCookies;
+		// this.cookies = setCookies;
+		return setCookies
 	}
 
 	async getOrdersPage(){
-		const resultingCookies = this.cookies.substr(0, cookiesHeader.length-8);
-
+		console.log('Getting Session')
+		var rawCookies = await m.getSession();
+		console.log('rawCookies = ', resultingCookies)
+		resultingCookies = rawCookies.substr(0, cookiesHeader.length-8);
+		
+		console.log('Priming Pump')
 		// Prime the pump by visiting home first with this session. Neccesary to prevent redirect to home during subsequent /orders request
 		var r = await fetch("https://us.msasafety.com/my-account/home/", {
 			"headers": {
@@ -140,98 +145,109 @@ class MSA {
 			},
 			'maxRedirects': 20
 		};
-		
+		console.log('Getting Orders Page')
 		var ordersHTML;
 
 		var req = https.request(options, function (res) {
 			var chunks = [];
 		
 			res.on("data", function (chunk) {
-			chunks.push(chunk);
+				chunks.push(chunk);
 			});
 		
 			res.on("end", function (chunk) {
 				var body = Buffer.concat(chunks);
 				ordersHTML = body.toString();
+				return ordersHTML
 			});
 		
 			res.on("error", function (error) {
-			console.error(error);
+				console.error(error);
 			});
 		});
 		req.end();
-
-
 	}
 
 	async storeOrders(ordersHTML){
-		ordersHTML = fs.readFileSync(DEBUG_PATH, {encoding: 'utf8'}) // TEST
+		var tableOfChanges = function(old, current) {
+			var output = '<style>table, td, th {border: 1px solid;}</style>'
+			output += '<table>'
+			output += '<tr>'
+			Object.keys(old).forEach((key) => {
+				output += `<td>${key}</td>`
+			})
+			output += '</tr>'
+			output += '<tr>'
+			
+			Object.keys(old).forEach((key) => {
+				output += (old[key] !== current[key]) ? `<td style="color:red"> ${old[key]} --> ${current[key]}</td>` : `<td>${old[key]}</td>`
+			})
+			
+			output += '</tr>'
+			output += '</table>'
+			return output
+		}
+		
+		ordersHTML = await this.getOrdersPage();
+		console.log('new ordersHTML = ', ordersHTML)
+		// ordersHTML = fs.readFileSync(DEBUG_PATH, {encoding: 'utf8'}) // FOR TEST
+
 		var ordersTable = new JSDOM(ordersHTML).window.document.getElementById('itemList').outerHTML;
 
-		var ordersNew = HtmlTableToJson.parse(ordersTable).results[0]
+		var ordersCurrent = HtmlTableToJson.parse(ordersTable).results[0]
 		var data = JSON.parse(fs.readFileSync(DATA_PATH, {encoding: 'utf8'}))
-
-		var changes = []
-
+		var htmlOutput = '';
+		var isChange = false;
 		if(!data.stored){
 			// nothing stored yet. Just store the initial
-			data.stored = ordersNew
+			data.stored = ordersCurrent
 		}else {
 			var ordersOld = data.stored
-			// now we have old and new, so need to compare. For i in new basically
-			for(var i in ordersNew){
-				// don't worry about "new order added" situation
-				if(ordersNew[i]){
-					if(ordersNew[i]['Order Date'] !== data.stored[i]['Order Date']){
-						changes.push({
-							old: data.stored[i]['Order Date'],
-							new: ordersNew[i]['Order Date']
-						})
+			var changesHTML = '';
+			// now we have old and current, so need to compare. For i in ordersOld, because new order alerts are handled basically
+			for(var i in ordersOld){
+				if(ordersOld[i] && JSON.stringify(ordersCurrent[i]) !== JSON.stringify(ordersOld[i])){
+					isChange = true
+					htmlOutput += tableOfChanges(ordersOld[i], ordersCurrent[i])
+				}
+			}
+
+			// if there is at least 1 new order
+			if(ordersCurrent.length > ordersOld.length){
+				var recentOrders = []
+				for(var i in ordersCurrent){
+					if(JSON.stringify(ordersCurrent[i]) !== JSON.stringify(ordersOld[i])){
+						recentOrders.push(ordersCurrent[i])
 					}
 				}
-			}
-			console.log('Changes = ', changes)
+				var newOrdersHTML = '<h2>New Orders</h2>';
+				newOrdersHTML += '<table>'
 
+				//headers
+				newOrdersHTML += '<th>'
+				Object.keys(recentOrders[0]).forEach((key)=>{
+					newOrdersHTML += `<td>${key}</td>`
+				})
+				newOrdersHTML += '</th>'
+
+				recentOrders.forEach(function(value,roKey){
+					newOrdersHTML += '<tr>'
+					Object.keys(recentOrders[roKey]).forEach((key)=>{
+						newOrdersHTML += `<td>${recentOrders[roKey][key]}</td>`
+					})
+					newOrdersHTML += '</tr>'
+				})
+				newOrdersHTML += '</table>'
+				htmlOutput += newOrdersHTML
+			}
+			
+
+			
+			isChange ? email.send(['miles@milescwatson.com'], 'MSA Order Change Alert', htmlOutput) : email.send(['miles@milescwatson.com'], 'No Changes to MSA Orders', 'No Changes')
 			// after comparing, send changes with an email
 			// now, replace the old with the new in storage
-			data.stored = ordersNew;
-
-			// async..await is not allowed in global scope, must use a wrapper
-			async function main() {
-				// Generate test SMTP service account from ethereal.email
-				// Only needed if you don't have a real mail account for testing
-				let testAccount = await nodemailer.createTestAccount();
 			
-				// create reusable transporter object using the default SMTP transport
-				let transporter = nodemailer.createTransport({
-				host: "localhost",
-				port: 25,
-				secure: false, // true for 465, false for other ports
-				tls: {
-					rejectUnauthorized: false
-				}
-				});
-			
-				// send mail with defined transport object
-				let info = await transporter.sendMail({
-				from: '"Miles Watson" <miles@cloud.milescwatson.com>', // sender address
-				to: "gggg@yopmail.com", // list of receivers
-				subject: "Hello ✔", // Subject line
-				text: "Hello world?", // plain text body
-				html: "<b>Hello world? Helllo darkness my old friend</b>", // html body
-				});
-			
-				console.log("Message sent: %s", info.messageId);
-				// Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
-			
-				// Preview only available when sending through an Ethereal account
-				console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-				// Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
-			}
-			
-			main().catch(console.error);
-
-  
+			data.stored = ordersCurrent;
 		}
 		fs.writeFileSync('./data.json', JSON.stringify(data), {encoding: 'utf8'})
 
@@ -240,5 +256,5 @@ class MSA {
 }
 
 var m = new MSA('username', 'password')
-// m.parseOrdersPage()
-m.storeOrders()
+// m.storeOrders()
+m.getSession()
