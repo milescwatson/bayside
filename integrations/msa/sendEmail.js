@@ -27,9 +27,9 @@ exports.send = async function(addressList, subject, body){
         Data: subject
       }
       },
-    Source: 'miles@milescwatson.com', /* required */
+    Source: 'info@baysidehvac.com', /* required */
     ReplyToAddresses: [
-      'miles@milescwatson.com',
+      'info@baysidehvac.com',
       /* more items */
     ],
   };

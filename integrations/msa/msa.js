@@ -1,3 +1,10 @@
+/*
+Notes:
+Need to drill down into each order to get order date.
+The new order part is OK
+
+*/
+
 const { resolve } = require('path');
 
 var fs = require('fs'),
@@ -262,11 +269,11 @@ var processChanges = async function(username, password){
 			htmlOutput += '</table>';
 
 			if(changeObject.changeType === 'new'){
-				email.send(['miles@milescwatson.com'], `New MSA Order #${changeObject['Order Number']} for ${changeObject['Ship To']}`, htmlOutput);
+				email.send(['miles@milescwatson.com', 'dave@baysidehvac.com'], `New MSA Order #${changeObject['Order Number']} for ${changeObject['Ship To']}`, htmlOutput);
 			}else if(changeObject.changeType === 'date'){
-				email.send(['miles@milescwatson.com'], `Date Change for MSA Order #${changeObject['Order Number']} from ${changeObject['Order Date']}`, htmlOutput);
+				email.send(['miles@milescwatson.com', 'dave@baysidehvac.com'], `Date Change for MSA Order #${changeObject['Order Number']} from ${changeObject['Order Date']}`, htmlOutput);
 			}else{
-				email.send(['miles@milescwatson.com'], `Change for MSA Order #${changeObject['Order Number']}`, htmlOutput);				
+				email.send(['miles@milescwatson.com', 'dave@baysidehvac.com'], `Change for MSA Order #${changeObject['Order Number']}`, htmlOutput);				
 			}
 			
 		})

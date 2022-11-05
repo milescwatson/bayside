@@ -21,6 +21,7 @@
     "fetch": "^1.1.0",
     "follow-redirects": "^1.15.2",
     "html-table-to-json": "^1.0.0",
+    "htmlparser2": "^8.0.1",
     "jsdom": "^20.0.0",
     "mysql2": "^2.3.3",
     "node-fetch": "^2.6.7",
