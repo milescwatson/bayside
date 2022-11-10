@@ -2,7 +2,6 @@
 Notes:
 Need to drill down into each order to get order date.
 The new order part is OK
-
 */
 
 const { resolve } = require('path');
@@ -12,6 +11,7 @@ var fs = require('fs'),
 	jsdom = require("jsdom"),
 	HtmlTableToJson = require('html-table-to-json'),
 	email = require('./sendEmail.js'),
+	child = require('./getChildAttributes'),
 	DATA_PATH = './data.json';
 
 const { JSDOM } = jsdom;
@@ -86,7 +86,6 @@ var getSession = async function(username, password){
 	});
 
 	var data = await response.headers;
-
 	var setCookies = data.get('set-cookie');
 	var dataStored = JSON.parse(fs.readFileSync(DATA_PATH, {encoding: 'utf8'}))
 	dataStored.session =  setCookies;
@@ -141,8 +140,12 @@ var getOrdersPage = async function(username, password){
 			"body": null,
 			"method": "GET"
 		});
-		var text = await r.text();		
-		var reqOrdersPage = await fetch('https://us.msasafety.com/my-account/orders?searchByNumber=false&searchByDate=last-six-months&inProcessOnly=false&sortVal=orderDate&asc=false', {
+
+		var text = await r.text();
+		// by week url: https://us.msasafety.com/my-account/orders
+		// https://us.msasafety.com/my-account/orders?searchByNumber=false&searchByDate=last-six-months&inProcessOnly=false&sortVal=orderDate&asc=false
+		// month: https://us.msasafety.com/my-account/orders?searchByNumber=false&searchByDate=last-month&inProcessOnly=false&sortVal=orderDate&asc=false
+		var reqOrdersPage = await fetch('https://us.msasafety.com/my-account/orders?searchByNumber=false&searchByDate=last-month&inProcessOnly=false&sortVal=orderDate&asc=false', {
 			"headers": {
 				'authority': 'us.msasafety.com',
 				'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
@@ -180,50 +183,8 @@ var getOrdersPage = async function(username, password){
 	}
 }
 
-var processChanges = async function(username, password){
-	var diffObjects = function(prev, next) {
-		var changeList = []
-		for(var i = 0; i < next.length; i++){
-		  
-		  var orderID = next[i]['Order Number']
-		  var isFound = false;
-		  prev.forEach(function(comparison){
-			// New order: Does not exist in old
-			// Changed order: Order Date changed
-			// Changed order: Anything else changed
-			if(comparison['Order Number'] === orderID){
-			  isFound = true;
-			  var isChanged = false;
-			  var changeObject = {...next[i]}
-			  Object.keys(next[i]).forEach((nKey)=>{
-				if(next[i][nKey] === comparison[nKey]){
-				  changeObject[nKey] = next[i][nKey]
-				}else{
-				  changeObject[nKey] = comparison[nKey] + ' --> ' + next[i][nKey]
-				  if(nKey = 'Order Date'){
-					changeObject.changeType = 'date'
-				  }
-				  isChanged = true
-				}
-			  })
-			  if(isChanged){
-				changeList.push(changeObject)
-			  }
-			}
-		  })
-		  if(!isFound){
-			changeList.push({...next[i], 'changeType': 'new'})
-		  }
-		}
-		return changeList
-	  }
-	
+var processChanges2 = async function(username, password){
 	var ordersHTML = await getOrdersPage(username, password);
-	// ordersHTML = fs.readFileSync(DEBUG_PATH, {encoding: 'utf8'}) // FOR TEST
-	// console.log(ordersHTML)
-	
-	var ordersTable = null
-	
 	try{
 		ordersTable = new JSDOM(ordersHTML).window.document.getElementById('itemList').outerHTML;
 	}catch(error){
@@ -236,57 +197,87 @@ var processChanges = async function(username, password){
 
 	var ordersCurrent = HtmlTableToJson.parse(ordersTable).results[0]
 	var data = JSON.parse(fs.readFileSync(DATA_PATH, {encoding: 'utf8'}))
-	var isChange = false;
+
+	// get subOrders
+	for(var i = 0; i < ordersCurrent.length; i++){
+		var a = await child.parseChildAttributes(ordersCurrent[i]['Order Number']);
+		ordersCurrent[i].subOrders = a;
+	}
+
 	if(!data.stored){
 		// nothing stored yet. Just store the initial
 		data.stored = ordersCurrent
 	}else {
 		var ordersOld = data.stored
-		var changesHTML = '';
-		// now we have old and current, so need to compare. For i in ordersOld, because new order alerts are handled basically
 
-		var changeList = diffObjects(ordersOld, ordersCurrent)
-		console.log('changeList = ', changeList)
-		changeList.forEach((changeObject)=>{
-			var htmlOutput = '';
-			htmlOutput += '<table style="border: 1px solid black; border-collapse: collapse" >';
-			//headers
-			htmlOutput += '<tr style="border: 1px solid black">';
-			Object.keys(changeObject).forEach((key)=>{
-				if(key !== 'changeType'){
-					htmlOutput += `<td style="border: 1px solid black">${key}</td>`
-				}
+		var changeList = []
+
+		if(ordersOld.length === 0){
+		  	ordersCurrent.forEach((order)=>{
+		  		changeList.push({new: {...order, 'changeType': 'new'}, old: null})
 			})
-			htmlOutput += '</tr>';
-			// tds
-			htmlOutput += '<tr style="border: 1px solid black">';
-			Object.keys(changeObject).forEach((key) => {
-				if(key !== 'changeType'){
-					htmlOutput += `<td style="border: 1px solid black">${changeObject[key]}</td>`;
+		}else{
+			for(var i = 0; i < ordersCurrent.length; i++){
+				var orderID = ordersCurrent[i]['Order Number']
+				var isFound = false;
+				ordersOld.forEach(function(comparison){
+				// New order: Does not exist in old
+				// Changed order: Order Date changed
+				// Changed order: Anything else changed
+				if(comparison['Order Number'] === orderID){
+				  isFound = true;
+				  var isChanged = false;
+				  var changeObject = {}
+				  ordersCurrent[i].subOrders.forEach((order, key)=>{
+				  	// we don't know if the old list of sub orders and the new list are the same.
+				  	// For now, we will just compare the lengths
+				  	if(ordersCurrent[i].subOrders.length === ordersOld[i].subOrders.length){
+						if(ordersCurrent[i].subOrders[key].rawHTML !== ordersOld[i].subOrders[key].rawHTML){
+					  		changeObject.old = ordersOld[i]
+					  		changeObject.new = ordersCurrent[i]
+					  		var predictedChangeType
+					  		if(ordersCurrent[i].subOrders[key].status['planned-ship-date'] !== ordersOld[i].subOrders[key].status['planned-ship-date']){
+								predictedChangeType = 'shipDateChange';
+					  		}
+					  		changeList.push({...changeObject, 'changeType': predictedChangeType})
+					  	}
+				  	}else{
+				  		// change in number of sub orders. Add change
+				  		changeObject.old = ordersOld[i]
+					  	changeObject.new = ordersCurrent[i]
+				  		changeList.push({...changeObject, 'changeType': null})
+				  	}
+
+				  })
 				}
-			});
-			htmlOutput += '</tr>';
-			htmlOutput += '</table>';
+			  })
+			  if(!isFound){
+			     changeList.push({new: {...ordersCurrent[i], 'changeType': 'new'}})
+			  }
 
-			if(changeObject.changeType === 'new'){
-				email.send(['miles@milescwatson.com', 'dave@baysidehvac.com'], `New MSA Order #${changeObject['Order Number']} for ${changeObject['Ship To']}`, htmlOutput);
-			}else if(changeObject.changeType === 'date'){
-				email.send(['miles@milescwatson.com', 'dave@baysidehvac.com'], `Date Change for MSA Order #${changeObject['Order Number']} from ${changeObject['Order Date']}`, htmlOutput);
-			}else{
-				email.send(['miles@milescwatson.com', 'dave@baysidehvac.com'], `Change for MSA Order #${changeObject['Order Number']}`, htmlOutput);				
 			}
-			
-		})
-
-		if(changeList.length === 0){
-			console.log('No Changes')
 		}
+		console.log(changeList.length, ' changes')
+		console.log(changeList)
+		changeList.forEach((change)=>{
+			var htmlOutput = '';
+			htmlOutput += `<a href="https://us.msasafety.com/my-account/order/${change.new['Order Number']}">MSA Order ${change.new['Order Number']}</a>`
 
-		// now, replace the old with the new in storage
-		data.stored = ordersCurrent;
+			switch(change.new.changeType) {
+			  case 'shipDateChange':
+				email.send(['miles@milescwatson.com'], `Date Change for MSA Order #${change.new['Order Number']}`, htmlOutput);
+			    break;
+			  case 'new':
+			  	email.send(['miles@milescwatson.com'], `New MSA Order #${change.new['Order Number']}}`, htmlOutput);
+			    break;
+			  default:
+				email.send(['miles@milescwatson.com'], `Change for MSA Order #${change.new['Order Number']}`, htmlOutput);
+			}
+		})
 	}
+	// now, replace the old with the new in storage
+	data.stored = ordersCurrent;
 	fs.writeFileSync('./data.json', JSON.stringify(data), {encoding: 'utf8'})
 }
 
-processChanges('dave@baysidehvac.com', 'Rockrock1998!msa4')
-// processChanges('john@johnsoncontrols.com', 'Rockrock1998!msa4')
+processChanges2('dave@baysidehvac.com', 'Rockrock1998!msa4')
