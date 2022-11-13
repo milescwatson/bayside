@@ -1,0 +1,127 @@
+mileswatson@MacBook-Air ~ % curl -v 'https://us.msasafety.com/j_spring_security_check' \
+  -H 'authority: us.msasafety.com' \
+  -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9' \
+  -H 'accept-language: en-US,en;q=0.9' \
+  -H 'cache-control: no-cache' \
+  -H 'content-type: application/x-www-form-urlencoded' \
+  -H 'cookie: _fbp=fb.1.1668223454027.229742616; username=dave@baysidehvac.com; _ga=GA1.3.208343191.1668222649; _gid=GA1.3.1080429185.1668223454; _gat_UA-10793938-34=1; _ga=GA1.2.208343191.1668222649; _gid=GA1.2.1080429185.1668223454; _ga_393SGDT3HV=GS1.1.1668222648.1.1.1668223454.0.0.0' \
+  -H 'origin: https://us.msasafety.com' \
+  -H 'pragma: no-cache' \
+  -H 'referer: https://us.msasafety.com/login' \
+  -H 'sec-ch-ua: "Chromium";v="106", "Google Chrome";v="106", "Not;A=Brand";v="99"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' \
+  -H 'sec-fetch-dest: document' \
+  -H 'sec-fetch-mode: navigate' \
+  -H 'sec-fetch-site: same-origin' \
+  -H 'sec-fetch-user: ?1' \
+  -H 'upgrade-insecure-requests: 1' \
+  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36' \
+  --data-raw 'j_username=dave%40baysidehvac.com&j_password=Rockrock1998%21msa4&j_rememberme=true&_j_rememberme=on&_requestConfirmationToken=79a1d1f04b8601a3ecede69ccbc6ebc39d5de98c' \
+  --compressed
+*   Trying 3.218.37.43:443...
+* Connected to us.msasafety.com (3.218.37.43) port 443 (#0)
+* ALPN, offering h2
+* ALPN, offering http/1.1
+* successfully set certificate verify locations:
+*  CAfile: /etc/ssl/cert.pem
+*  CApath: none
+* (304) (OUT), TLS handshake, Client hello (1):
+* (304) (IN), TLS handshake, Server hello (2):
+* TLSv1.2 (IN), TLS handshake, Certificate (11):
+* TLSv1.2 (IN), TLS handshake, Server key exchange (12):
+* TLSv1.2 (IN), TLS handshake, Server finished (14):
+* TLSv1.2 (OUT), TLS handshake, Client key exchange (16):
+* TLSv1.2 (OUT), TLS change cipher, Change cipher spec (1):
+* TLSv1.2 (OUT), TLS handshake, Finished (20):
+* TLSv1.2 (IN), TLS change cipher, Change cipher spec (1):
+* TLSv1.2 (IN), TLS handshake, Finished (20):
+* SSL connection using TLSv1.2 / ECDHE-RSA-CHACHA20-POLY1305
+* ALPN, server accepted to use h2
+* Server certificate:
+*  subject: CN=*.msasafety.com
+*  start date: Aug 30 00:00:00 2022 GMT
+*  expire date: Aug 30 23:59:59 2023 GMT
+*  subjectAltName: host "us.msasafety.com" matched cert's "*.msasafety.com"
+*  issuer: C=US; O=DigiCert Inc; OU=www.digicert.com; CN=Thawte RSA CA 2018
+*  SSL certificate verify ok.
+* Using HTTP2, server supports multiplexing
+* Connection state changed (HTTP/2 confirmed)
+* Copying HTTP/2 data in stream buffer to connection buffer after upgrade: len=0
+* Using Stream ID: 1 (easy handle 0x153012c00)
+> POST /j_spring_security_check HTTP/2
+> Host: us.msasafety.com
+> accept-encoding: deflate, gzip
+> authority: us.msasafety.com
+> accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9
+> accept-language: en-US,en;q=0.9
+> cache-control: no-cache
+> content-type: application/x-www-form-urlencoded
+> cookie: _fbp=fb.1.1668223454027.229742616; username=dave@baysidehvac.com; _ga=GA1.3.208343191.1668222649; _gid=GA1.3.1080429185.1668223454; _gat_UA-10793938-34=1; _ga=GA1.2.208343191.1668222649; _gid=GA1.2.1080429185.1668223454; _ga_393SGDT3HV=GS1.1.1668222648.1.1.1668223454.0.0.0
+> origin: https://us.msasafety.com
+> pragma: no-cache
+> referer: https://us.msasafety.com/login
+> sec-ch-ua: "Chromium";v="106", "Google Chrome";v="106", "Not;A=Brand";v="99"
+> sec-ch-ua-mobile: ?0
+> sec-ch-ua-platform: "macOS"
+> sec-fetch-dest: document
+> sec-fetch-mode: navigate
+> sec-fetch-site: same-origin
+> sec-fetch-user: ?1
+> upgrade-insecure-requests: 1
+> user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36
+> content-length: 166
+> 
+* Connection state changed (MAX_CONCURRENT_STREAMS == 250)!
+* We are completely uploaded and fine
+< HTTP/2 302 
+< cache-control: no-cache, no-store, max-age=0, must-revalidate
+< content-encoding: gzip
+< content-security-policy-report-only: block-all-mixed-content; connect-src 'self' https://*.scene7.com https://*.limelight.com https://*.google-analytics.com https://*.bing.com https://*.mktoresp.com https://*.doubleclick.net https://*.wisepops.com https://*.medallia.com https://*.kampyle.com https://*.msanet.com https://*.hotjar.com https://*.mapbox.com https://*.googlevideo.com https://*.llnw.net https://*.facebook.com https://*.cookielaw.org https://*.clarity.ms https://*.clickagy.com https://*.onetrust.com https://*.msasafety.com https://*.*.onetrust.com https://*.zoominfo.com https://*.usetiful.com https://*.mktoutil.com; default-src 'self'; font-src 'self' data: https://*.gstatic.com https://*.fontawesome.com https://*.cloudfront.net https://*.typekit.net; frame-src 'self' https://*.msasafety.com https://*.msanet.com https://*.google.com https://*.doubleclick.net https://*.marketo.com https://*.bing.com https://*.hotjar.com https://*.medallia.com https://*.zoho.com https://*.metalocator.com https://*.youtube.com https://*.sierramonitor.com https://*.123formbuilder.com https://*.clickagy.com https://*.facebook.com; img-src data: 'self' https://*.scene7.com https://*.googletagmanager.com https://*.pricespider.com https://*.googleadservices.com https://*.linkedin.com https://*.doubleclick.net https://*.google.com https://*.bing.com https://*.facebook.com https://*.google-analytics.com https://*.loopanalytics.com https://*.cookielaw.org https://*.clarity.ms https://*.clickagy.com https://*.metalocator.com https://*.msasafety.com https://*.msanet.com https://*.webdamdb.com https://*.*.linkedin.com; media-src 'self' blob: https://*.llnw.net; object-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' data: https://*.msasafety.com https://*.scene7.com https://*.pricespider.com https://*.limelight.com https://*.marketo.com https://*.marketo.net https://*.googleapis.com https://*.googletagmanager.com https://*.google-analytics.com https://*.googleadservices.com https://*.gstatic.com https://*.bing.com https://*.doubleclick.net https://*.loopanalytics.com https://*.hotjar.com https://*.facebook.net https://*.wisepops.com https://*.adobedtm.com https://*.licdn.com https://*.medallia.com https://*.kampyle.com https://*.kickfire.com https://*.simpli.fi https://*.google.com https://*.metalocator.com https://*.pardot.com https://*.mapbox.com https://*.sierramonitor.com https://*.zohostatic.com https://*.usersnap.com https://*.cloudfront.net https://*.youtube.com https://*.cookielaw.org https://*.clarity.ms https://*.clickagy.com https://*.123formbuilder.com https://*.zoominfo.com https://*.usetiful.com; style-src 'self' https: 'unsafe-inline'; upgrade-insecure-requests; worker-src 'self' blob:; report-uri /.webscale/csp-report
+< date: Sat, 12 Nov 2022 03:41:31 GMT
+< expires: 0
+< location: /choose-b2b-unit
+< pragma: no-cache
+< server: Apache
+< set-cookie: JSESSIONID=28F61F84CB7DEF6E2378B2CC79DA0F0C.worker3; Path=/; Secure; HttpOnly;SameSite=None;Secure
+< set-cookie: SECSESSIONID=8bb28d1b160be27ff8f1823da5725346d63036fc; Path=/; Secure; HttpOnly;SameSite=None;Secure
+< set-cookie: _hybris.tenantID_=; Max-Age=0; Expires=Thu, 01-Jan-1970 00:00:10 GMT; Path=/; HttpOnly;SameSite=None;Secure
+< set-cookie: JSESSIONID=28F61F84CB7DEF6E2378B2CC79DA0F0C.worker3; Path=/; HttpOnly;SameSite=None;Secure
+< set-cookie: acceleratorSecureGUID=97f987c0a87c944cf2d6c993ab3c5aa47a065fbb; Path=/; Secure;SameSite=None;Secure
+< set-cookie: lagrange_session=60631b37-105b-4ebe-9e53-b84ba68e5166; Path=/; Max-Age=1800; HttpOnly
+< strict-transport-security: max-age=63072000;
+< vary: User-Agent
+< vary: Accept-Encoding
+< x-content-type-options: nosniff
+< x-frame-options: SAMEORIGIN
+< x-xss-protection: 1
+< content-length: 23
+< 
+* Connection #0 to host us.msasafety.com left intact
+
+
+## NOTES ##
+^^ This worked. And does not follow redirects!! Also - without the garbage cookies included it still works
+--data-raw 'j_username=dave%40baysidehvac.com&j_password=Rockrock1998%21msa4&j_rememberme=true&_j_rememberme=on&_requestConfirmationToken=79a1d1f04b8601a3ecede69ccbc6ebc39d5de98c'
+
+## Verify works:
+curl 'https://us.msasafety.com/my-account/home' \
+  -H 'authority: us.msasafety.com' \
+  -H 'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9' \
+  -H 'accept-language: en-US,en;q=0.9' \
+  -H 'cache-control: no-cache' \
+  -H 'cookie: username=dave@baysidehvac.com; SECSESSIONID=8bb28d1b160be27ff8f1823da5725346d63036fc; acceleratorSecureGUID=97f987c0a87c944cf2d6c993ab3c5aa47a065fbb; lagrange_session=60631b37-105b-4ebe-9e53-b84ba68e5166; JSESSIONID=28F61F84CB7DEF6E2378B2CC79DA0F0C.worker3' \
+  -H 'pragma: no-cache' \
+  -H 'referer: https://us.msasafety.com/login' \
+  -H 'sec-ch-ua: "Chromium";v="106", "Google Chrome";v="106", "Not;A=Brand";v="99"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "macOS"' \
+  -H 'sec-fetch-dest: document' \
+  -H 'sec-fetch-mode: navigate' \
+  -H 'sec-fetch-site: same-origin' \
+  -H 'sec-fetch-user: ?1' \
+  -H 'upgrade-insecure-requests: 1' \
+  -H 'user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/106.0.0.0 Safari/537.36' \
+  --compressed
+
+^^ This does not always work. But appears to always work when copying values to postman

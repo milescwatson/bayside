@@ -80,10 +80,10 @@ exports.parseChildAttributes = async (orderNumber)=>{
 
         // todo: need to get to each of the status fields, e.g. 
         rowObject.status = {
-            'status': status.children[1].innerHTML.trim(),
-            'qty': status.children[2].innerHTML.trim(),
-            'planned-ship-date': status.getElementsByClassName('shipDetails-data shipDetails--noInfo')[0].children[0].innerHTML.split(':')[1],
-            'actual-ship-date': status.getElementsByClassName('shipDetails-data shipDetails--noInfo')[0].children[1].innerHTML.split(':')[1]
+            'status': getHTML(()=>{return status.children[1].innerHTML.trim()}),
+            'qty': getHTML(()=>{return status.children[2].innerHTML.trim()}),
+            'planned-ship-date': getHTML(()=>{return status.getElementsByClassName('shipDetails-data shipDetails--noInfo')[0].children[0].innerHTML.split(':')[1]}),
+            'actual-ship-date': getHTML(()=>{return status.getElementsByClassName('shipDetails-data shipDetails--noInfo')[0].children[1].innerHTML.split(':')[1]})
         }
         rowObject.rawHTML = rowDom.innerHTML;
         rows.push({...rowObject})
